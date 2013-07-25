@@ -6,10 +6,16 @@ pUser = nil
 pNpc = nil
 bSelectedReward = -1
 
+local CancelButton = 193
+local AsgaBerries = 603
+local AsgaBerriesDecide = 604
+local AsgaBerriesAccept = 605
+local AsgaBerriesExchange = 610
+
 local eventMap = {
 	[190] = BaseMenu,
 	[191] = HandleNPCSelection,
-	[193] = HandleClose,
+	[193] = HandleCancelButton,
 	[220] = HandleBorderDefendingBattleInfo,
 	[231] = HandleBorderDefendingBattleInfo1,
 	[221] = HandleBorderDefenceBattleShowMapSaveEvent,
@@ -25,7 +31,9 @@ local eventMap = {
 	[603] = HandleAsgaBerries,
 	[604] = HandleAsgaBerriesDecide,
 	[605] = HandleAsgaBerriesAccept,
+	[606] = HandleSeedMaxAsgaBerriesFulfilled,
 	[608] = HandleAsgaBerriesRequiredItems,
+	[609] = HandleAsgaBerriesShowMap,
 	[610] = HandleAsgaBerriesExchange,
 }
 
@@ -45,7 +53,8 @@ end
 function HandleNPCSelection()
 	local sQuest = pUser:SearchQuest()
 		if (sQuest == 0) then
-						pUser:SelectMsg(2, -1, 3825, 10, CancleButton)
+						pUser:SelectMsg(2, -1, 3825, 10, CancelButton)
+						return 1
 		elseif (sQuest > 1 and  sQuest < 100) then
 						pUser:NpcMsg(3825)
 		else
@@ -53,19 +62,22 @@ function HandleNPCSelection()
 		end
 end
 
-function HandleClose()
-						print("HIT Close!")
+function HandleCancelButton()
+						print("HIT CancelButton!")
 						return
 end
 
+-----
+-- Asga Berries Start
+-----
 function HandleAsgaBerries()
 						print("HIT AsgaBerries!")
-						pUser:SelectMsg(2, 317, 3124, 10, 604)
+						pUser:SelectMsg(2, 317, 3124, 10, AsgaBerriesDecide)
 end
 
 function HandleAsgaBerriesDecide()
 						print("HIT AsgaBerriesDecide!")
-						pUser:SelectMsg(4, 317, 3125, 22, 605, 23, CancleButton)
+						pUser:SelectMsg(4, 317, 3125, 22, AsgaBerriesAccept, 23, CancelButton)
 end
 
 function HandleAsgaBerriesAccept()
@@ -73,14 +85,30 @@ function HandleAsgaBerriesAccept()
 						pUser:SaveEvent(3283)
 end
 
+function HandleSeedMaxAsgaBerriesFulfilled()
+						print("HIT AsgaBerriesFulfilled!")
+						pUser:SaveEvent(3285)
+	if (pUser:GetNation() == 1) then
+						pUser:SelectMsg(1, 317, 3005, 32, CancelButton)
+	else
+						pUser:SelectMsg(1, 317, 3129, 32, CancelButton)
+	end
+end
+
 function HandleAsgaBerriesRequiredItems()
 						print("HIT AsgaBerriesRequiredItems!")
 		if (not pUser:CheckExistItem(910082000)) then
-						pUser:SelectMsg(2, 317, 3128, 10, CancleButton)
+						pUser:SelectMsg(2, 317, 3128, 10, CancelButton)
 		else
-						pUser:SelectMsg(4, 317, 3130, 10, 610, 27, CancleButton)
+						pUser:SelectMsg(4, 317, 3130, 10, AsgaBerriesExchange, 27, CancelButton)
 		end
 end
+
+function HandleAsgaBerriesShowMap()
+						print("HIT AsgaBerriesShowMap!")
+						pUser:ShowMap(314)
+end
+
 
 function HandleAsgaBerriesExchange()
 						print("HIT AsgaBerriesExchange!")
@@ -88,7 +116,13 @@ function HandleAsgaBerriesExchange()
 						pUser:GoldGain(100000)
 						pUser:SaveEvent(3286) 
 end
+-----
+-- Asga Berries End
+-----
 
+-----
+-- Border Defending Battle Info Start
+-----
 function HandleBorderDefendingBattleInfo()
 						pUser:SelectMsg(1, 313, 3114, 3013, 231)
 end
@@ -102,7 +136,13 @@ function HandleBorderDefenceBattleShowMapSaveEvent()
 						pUser:ShowMap(306)
 						pUser:SaveEvent(3202)
 end
+-----
+-- Border Defending Battle Info End
+-----
 
+-----
+-- MagicShield Start
+-----
 function HandleSeedMaxMagicShieldQuestPrompt()
 						pUser:SelectMsg(1, 313, 3112, 3013, 232)
 end
@@ -116,13 +156,12 @@ function HandleSeedMaxMagicShieldShowMapSaveEvent()
 						pUser:SaveEvent(3202)
 end
 
-
 function HandleMagicShield()
 						pUser:SelectMsg(2, 313, 3088, 3000, 224)
 end
 
 function HandleMagicShieldInfo()
-						pUser:SelectMsg(4, 313, 3089, 22, 225, 23, 193)
+						pUser:SelectMsg(4, 313, 3089, 22, 225, 23, CancelButton)
 end
 
 function HandleMagicShieldSaveEvent()
@@ -135,9 +174,9 @@ function HandleSeedMaxMagicShieldFulfilled()
 						pUser:SaveEvent(3205)
 	NATION = pUser:CheckNation(UID)
 	if NATION == 1 then
-						pUser:SelectMsg(1, 313, 3093, 32, 193)
+						pUser:SelectMsg(1, 313, 3093, 32, CancelButton)
 	else
-						pUser:SelectMsg(1, 313, 3094, 32, 193)
+						pUser:SelectMsg(1, 313, 3094, 32, CancelButton)
 	end
 end
 
@@ -151,14 +190,14 @@ function HandleMagicShieldCheckRequiredItems()
 	ITEM_COUNTB = HowmuchItem(389075000)
 	ITEM_COUNTC = HowmuchItem(900000000)
 	if (ITEM_COUNTA  > 0 and ITEM_COUNTB  > 29 and ITEM_COUNTC  > 4999999) then
-						pUser:SelectMsg(4, 313, 3095, 14202, 10, 230, 27, 193)
+						pUser:SelectMsg(4, 313, 3095, 14202, 10, 230, 27, CancelButton)
 	else
 		if  ITEM_COUNTA <= 0 then
-						pUser:SelectMsg(2, 313, 3092, 14202, 10, 193)
+						pUser:SelectMsg(2, 313, 3092, 14202, 10, CancelButton)
 		elseif  ITEM_COUNTB <= 29 then
-						pUser:SelectMsg(2, 313, 3092, 14202, 10, 193)
+						pUser:SelectMsg(2, 313, 3092, 14202, 10, CancelButton)
 		else
-						pUser:SelectMsg(2, 313, 3092, 14202, 10, 193)
+						pUser:SelectMsg(2, 313, 3092, 14202, 10, CancelButton)
       end   
 	end
 end
@@ -172,13 +211,16 @@ local Check
 
 function HandleMagicShieldExchange()
    Check = pUser:CheckExchange(313)
-   if  Check ==1 then
+   if  Check == 1 then
    pUser:RunExchange(313)
    pUser:SaveEvent(3206)
    else
   return
   end	 
 end
+-----
+-- Magic Shield End
+-----
 
 --[[
 --속도의비약 퀘스트
@@ -204,7 +246,7 @@ if EVENT == 303 then
 end
 
 if EVENT == 304 then
-  pUser:SelectMsg(4, 314, 3097, 22, 305, 23, 193)
+  pUser:SelectMsg(4, 314, 3097, 22, 305, 23, CancelButton)
 end
 
 if EVENT == 305 then
@@ -218,9 +260,9 @@ if EVENT == 306 then
    SaveEvent(3225)
    NATION = CheckNation(UID)
    if NATION == 1 then -- 카루스 일때
-     pUser:SelectMsg(1, 314, 3101, 32, 193)
+     pUser:SelectMsg(1, 314, 3101, 32, CancelButton)
    else -- 엘모일때
-     pUser:SelectMsg(1, 314, 3102, 21, 193)
+     pUser:SelectMsg(1, 314, 3102, 21, CancelButton)
    end
 end
 
@@ -234,14 +276,14 @@ if EVENT == 308 then
    ITEM_COUNTB = HowmuchItem(379201000)
    ITEM_COUNTC = HowmuchItem(379014000)
    if  ITEM_COUNTA  > 4 and  ITEM_COUNTB  > 49 and  ITEM_COUNTC  > 29 then --재료가 다있을때 
-     pUser:SelectMsg(4, 314, 3103, 10, 310, 27, 193)
+     pUser:SelectMsg(4, 314, 3103, 10, 310, 27, CancelButton)
    else -- 재료가 없을때
       if ITEM_COUNTA <= 4 then -- A 재료 없을때
-       pUser:SelectMsg(2, 314, 3100, 10, 193)
+       pUser:SelectMsg(2, 314, 3100, 10, CancelButton)
       elseif  ITEM_COUNTB <= 49 then -- B 재료 없을때 
-       pUser:SelectMsg(2, 314, 3100, 10, 193)
+       pUser:SelectMsg(2, 314, 3100, 10, CancelButton)
       else -- C 재료 없을때
-     pUser:SelectMsg(2, 314, 3100, 10, 193)
+     pUser:SelectMsg(2, 314, 3100, 10, CancelButton)
       end
     end
 end
@@ -285,7 +327,7 @@ if EVENT == 403 then
 end
 
 if EVENT == 404 then
-  pUser:SelectMsg(4, 315, 3105, 22, 405, 23, 193)
+  pUser:SelectMsg(4, 315, 3105, 22, 405, 23, CancelButton)
 end
 
 if EVENT == 405 then
@@ -299,9 +341,9 @@ if EVENT == 406 then
    SaveEvent(3245)
    NATION = CheckNation(UID)
    if NATION == 1 then -- 카루스 일때
-     pUser:SelectMsg(1, 315, 3109, 32, 193)
+     pUser:SelectMsg(1, 315, 3109, 32, CancelButton)
    else -- 엘모일때
-     pUser:SelectMsg(1, 315, 3110, 21, 193)
+     pUser:SelectMsg(1, 315, 3110, 21, CancelButton)
    end
 end
 
@@ -315,14 +357,14 @@ if EVENT == 408 then
    ITEM_COUNTB = HowmuchItem(379042000)
    ITEM_COUNTC = HowmuchItem(379067000)
    if  ITEM_COUNTA  > 19 and  ITEM_COUNTB  > 0 and  ITEM_COUNTC  > 0 then --재료가 다있을때 
-     pUser:SelectMsg(4, 315, 3111, 10, 410, 27, 193)
+     pUser:SelectMsg(4, 315, 3111, 10, 410, 27, CancelButton)
    else -- 재료가 없을때
       if ITEM_COUNTA <= 19 then -- A 재료 없을때
-       pUser:SelectMsg(2, 315, 3108, 10, 193)
+       pUser:SelectMsg(2, 315, 3108, 10, CancelButton)
       elseif  ITEM_COUNTB <= 0 then -- B 재료 없을때 
-       pUser:SelectMsg(2, 315, 3108, 10, 193)
+       pUser:SelectMsg(2, 315, 3108, 10, CancelButton)
       else -- C 재료 없을때
-       pUser:SelectMsg(2, 315, 3108, 10, 193)
+       pUser:SelectMsg(2, 315, 3108, 10, CancelButton)
       end
     end
 end
@@ -374,7 +416,7 @@ if EVENT == 503 then
 end
 
 if EVENT == 504 then
-  pUser:SelectMsg(4, 316, 3117, 22, 505, 23, 193)
+  pUser:SelectMsg(4, 316, 3117, 22, 505, 23, CancelButton)
 end
 
 if EVENT == 505 then
@@ -388,9 +430,9 @@ if EVENT == 506 then
    SaveEvent(3265)
    NATION = CheckNation(UID)
    if NATION == 1 then -- 카루스 일때
-     pUser:SelectMsg(1, 316, 3121, 32, 193)
+     pUser:SelectMsg(1, 316, 3121, 32, CancelButton)
    else -- 엘모일때
-     pUser:SelectMsg(1, 316, 3122, 21, 193)
+     pUser:SelectMsg(1, 316, 3122, 21, CancelButton)
    end
 end
 
@@ -406,16 +448,16 @@ if EVENT == 508 then
    ITEM_COUNTC = HowmuchItem(379042000)
    ITEM_COUNTD = HowmuchItem(379014000)
    if  ITEM_COUNTA  > 0 and  ITEM_COUNTB  > 0 and  ITEM_COUNTC  > 0 and  ITEM_COUNTD  > 9 then --재료가 다있을때 
-     pUser:SelectMsg(4, 316, 3123, 10, 510, 27, 193)
+     pUser:SelectMsg(4, 316, 3123, 10, 510, 27, CancelButton)
    else -- 재료가 없을때
       if ITEM_COUNTA <= 0 then -- A 재료 없을때
-       pUser:SelectMsg(2, 316, 3120, 10, 193)
+       pUser:SelectMsg(2, 316, 3120, 10, CancelButton)
       elseif  ITEM_COUNTB <= 0 then -- B 재료 없을때 
-       pUser:SelectMsg(2, 316, 3120, 10, 193)
+       pUser:SelectMsg(2, 316, 3120, 10, CancelButton)
       elseif  ITEM_COUNTB <= 0 then -- C 재료 없을때 
-       pUser:SelectMsg(2, 316, 3120, 10, 193)
+       pUser:SelectMsg(2, 316, 3120, 10, CancelButton)
       else -- D 재료 없을때
-       pUser:SelectMsg(2, 316, 3120, 10, 193)
+       pUser:SelectMsg(2, 316, 3120, 10, CancelButton)
       end
     end
 end
@@ -462,9 +504,9 @@ if EVENT == 606 then
    SaveEvent(3285)
    NATION = CheckNation(UID)
    if NATION == 1 then -- 카루스 일때
-     pUser:SelectMsg(1, 317, 3005, 32, 193)
+     pUser:SelectMsg(1, 317, 3005, 32, CancelButton)
    else -- 엘모일때
-     pUser:SelectMsg(1, 317, 3129, 32, 193)
+     pUser:SelectMsg(1, 317, 3129, 32, CancelButton)
    end
 end
 
@@ -472,9 +514,9 @@ end
 
 function BerriesRequiredItems()
 	if (not pUser:CheckExistItem(910082000)) then
-						pUser:SelectMsg(2, 317, 3128, 10, 193)
+						pUser:SelectMsg(2, 317, 3128, 10, CancelButton)
 	else
-						pUser:SelectMsg(4, 317, 3130, 10, 610, 27, 193)
+						pUser:SelectMsg(4, 317, 3130, 10, 610, 27, CancelButton)
 	end
 end
 
@@ -513,7 +555,7 @@ if EVENT == 703 then
 end
 
 if EVENT == 704 then
-  pUser:SelectMsg(4, 318, 3132, 22, 705, 23, 193)
+  pUser:SelectMsg(4, 318, 3132, 22, 705, 23, CancelButton)
 end
 
 if EVENT == 705 then
@@ -527,9 +569,9 @@ if EVENT == 706 then
    SaveEvent(3295)
    NATION = CheckNation(UID)
    if NATION == 1 then -- 카루스 일때
-     pUser:SelectMsg(1, 318, 3136, 3015, 193)
+     pUser:SelectMsg(1, 318, 3136, 3015, CancelButton)
    else -- 엘모일때
-     pUser:SelectMsg(1, 318, 3006, 3015, 193)
+     pUser:SelectMsg(1, 318, 3006, 3015, CancelButton)
    end
 end
 
@@ -539,9 +581,9 @@ local RUN_EXCHANGE ;--재료 교체 함수 만들어 주세요
 if EVENT == 708 then
 	ITEM_COUNT = GetMaxExchange(318) --exchange 테이블 인덱스값 
       if  ITEM_COUNT == 0 then -- 재료 없을때
-      pUser:SelectMsg(2, 318, 3135, 10, 193)
+      pUser:SelectMsg(2, 318, 3135, 10, CancelButton)
        else-- 재료 있을때
-      pUser:SelectMsg(4, 318, 3137, 10, 710, 27, 193)
+      pUser:SelectMsg(4, 318, 3137, 10, 710, 27, CancelButton)
       end
 end
 
@@ -577,9 +619,9 @@ if EVENT == 530 then
    SaveEvent(4099) --helper 번호 수정 
    NATION = CheckNation(UID)
       if NATION == 1 then --카루스 일때 
-     pUser:SelectMsg(1, savenum, 4094, NPC, 4080, 193)
+     pUser:SelectMsg(1, savenum, 4094, NPC, 4080, CancelButton)
       else -- 엘모일때
-     pUser:SelectMsg(1, savenum, 4095, NPC, 4080, 193)
+     pUser:SelectMsg(1, savenum, 4095, NPC, 4080, CancelButton)
       end
    else -- 2차 전직이 되거나, 1차 전직도 안한 경우
     Ret = 1;
@@ -596,10 +638,10 @@ Level = CheckLevel(UID)
       pUser:SelectMsg(4, savenum, 4098, NPC, 22, 533, 23, 534)
       else --1차 전직을 이미 했을때
       SaveEvent(4101)
-     pUser:SelectMsg(2, savenum, 4097, NPC, 10, 193)
+     pUser:SelectMsg(2, savenum, 4097, NPC, 10, CancelButton)
       end
    else --레벨이 60이하일때 
-  pUser:SelectMsg(2, savenum, 4096, NPC, 10, 193)
+  pUser:SelectMsg(2, savenum, 4096, NPC, 10, CancelButton)
    end
 end
 
@@ -618,9 +660,9 @@ if EVENT == 535 then
    SaveEvent(4102)
    NATION = CheckNation(UID)
    if NATION == 1 then -- 카루스 일때
-     pUser:SelectMsg(1, savenum, 4101, NPC, 4080, 193)
+     pUser:SelectMsg(1, savenum, 4101, NPC, 4080, CancelButton)
    else -- 엘모일때
-     pUser:SelectMsg(1, savenum, 4102, NPC, 4080, 193)
+     pUser:SelectMsg(1, savenum, 4102, NPC, 4080, CancelButton)
    end
 end
 
@@ -630,12 +672,12 @@ if EVENT == 536 then
    ITEM_COUNTA = HowmuchItem(379241000) --독의 성수
    ITEM_COUNTB = HowmuchItem(379236000) -- 마법의 보석가루
     if  ITEM_COUNTA  > 0 and  ITEM_COUNTB  > 0  then --재료가 다있을때 
-     pUser:SelectMsg(2, savenum, 4103, NPC, 4062, 537, 4063, 193)
+     pUser:SelectMsg(2, savenum, 4103, NPC, 4062, 537, 4063, CancelButton)
     else -- 재료가 없을때
        if ITEM_COUNTA <= 0 then -- A 재료 없을때
-      pUser:SelectMsg(2, savenum, 4099, NPC, 10, 193)
+      pUser:SelectMsg(2, savenum, 4099, NPC, 10, CancelButton)
        else -- B 재료 없을때 
-      pUser:SelectMsg(2, savenum, 4100, NPC, 10, 193)
+      pUser:SelectMsg(2, savenum, 4100, NPC, 10, CancelButton)
        end
    end
 end
@@ -647,9 +689,9 @@ if EVENT == 537 then
    PromoteUser(UID)
    NATION = CheckNation(UID)
    if NATION == 1 then --카루스 일때 
-  pUser:SelectMsg(1, savenum, 4092, NPC, 4064, 193)
+  pUser:SelectMsg(1, savenum, 4092, NPC, 4064, CancelButton)
    else -- 엘모일때
-  pUser:SelectMsg(1, savenum, 4093, NPC, 4064, 193)
+  pUser:SelectMsg(1, savenum, 4093, NPC, 4064, CancelButton)
    end
 end
 
@@ -682,7 +724,7 @@ if EVENT == 823 then
     if Class == 6 or Class == 8 or Class == 10 or Class == 12 then -- 2차 전직 자인가 체크 
   pUser:SelectMsg(2, 52, 3226, 10, 824)
     else --2차 전직을 안했을때 
-  pUser:SelectMsg(2, 52, 4711, 10, 193)
+  pUser:SelectMsg(2, 52, 4711, 10, CancelButton)
     end
 end
 
@@ -696,11 +738,11 @@ end
 
 if EVENT == 825 then
    SaveEvent(3423)
-  pUser:SelectMsg(2, 52, 3228, 10, 193)
+  pUser:SelectMsg(2, 52, 3228, 10, CancelButton)
 end
 
 if EVENT == 831 then
-  pUser:SelectMsg(2, 52, 3229, 10, 193)
+  pUser:SelectMsg(2, 52, 3229, 10, CancelButton)
 end
 
 -- collect all
@@ -710,9 +752,9 @@ if EVENT == 826 then
    SaveEvent(3425)
    NATION = CheckNation(UID)
    if NATION == 1 then -- 카루스 일때
-     pUser:SelectMsg(1, 52, 3231, 32, 193)
+     pUser:SelectMsg(1, 52, 3231, 32, CancelButton)
    else -- 엘모일때
-     pUser:SelectMsg(1, 52, 3232, 32, 193)
+     pUser:SelectMsg(1, 52, 3232, 32, CancelButton)
    end
 end
 
@@ -726,14 +768,14 @@ if EVENT == 828 then
    ITEM_COUNT2 = HowmuchItem(379246000)
    ITEM_COUNT3 = HowmuchItem(379064000)
    if ITEM_COUNT1  > 0 and ITEM_COUNT2  > 0 and ITEM_COUNT3  > 0 then-- 재료 다있을때
-     pUser:SelectMsg(4, 52, 3233, 41, 830, 27, 193)
+     pUser:SelectMsg(4, 52, 3233, 41, 830, 27, CancelButton)
    else
       if ITEM_COUNT1 <= 0 then -- 1재료 없을때
-       pUser:SelectMsg(2, 52, 3230, 10, 193)
+       pUser:SelectMsg(2, 52, 3230, 10, CancelButton)
       elseif ITEM_COUNT2 <= 0 then -- 2재료 없을때
-        pUser:SelectMsg(2, 52, 3230, 10, 193)
+        pUser:SelectMsg(2, 52, 3230, 10, CancelButton)
       else -- 3재료 없을때
-        pUser:SelectMsg(2, 52, 3230, 10, 193)
+        pUser:SelectMsg(2, 52, 3230, 10, CancelButton)
       end
    end
 end
@@ -788,7 +830,7 @@ if EVENT == 923 then
     if Class == 6 or Class == 8 or Class == 10 or Class == 12 then -- 2차 전직 자인가 체크 
    pUser:SelectMsg(2, savenum, 5125, NPC, 10, 924)
     else --2차 전직을안했을때 
-   pUser:SelectMsg(2, savenum, 5124, NPC, 10, 193)
+   pUser:SelectMsg(2, savenum, 5124, NPC, 10, CancelButton)
    end
 end
 
@@ -798,11 +840,11 @@ end
 
 if EVENT == 925 then
    SaveEvent(5126)
-  pUser:SelectMsg(2, savenum, 5127, NPC, 10, 193)
+  pUser:SelectMsg(2, savenum, 5127, NPC, 10, CancelButton)
 end
 
 if EVENT == 931 then
-  pUser:SelectMsg(2, savenum, 5128, NPC, 10, 193)
+  pUser:SelectMsg(2, savenum, 5128, NPC, 10, CancelButton)
 end
 
 -- collect all
@@ -812,9 +854,9 @@ if EVENT == 926 then
    SaveEvent(5128)
    NATION = CheckNation(UID)
    if NATION == 1 then -- 카루스 일때
-     pUser:SelectMsg(1, savenum, 5130, NPC, 32, 193)
+     pUser:SelectMsg(1, savenum, 5130, NPC, 32, CancelButton)
    else -- 엘모일때
-     pUser:SelectMsg(1, savenum, 5131, NPC, 32, 193)
+     pUser:SelectMsg(1, savenum, 5131, NPC, 32, CancelButton)
    end
 end
 
@@ -829,16 +871,16 @@ if EVENT == 928 then
    ITEM_COUNT2 = HowmuchItem(379236000)
    ITEM_COUNT3 = HowmuchItem(900000000)
    if ITEM_COUNT1  > 0 and ITEM_COUNT2  > 2 and ITEM_COUNT3 > 9999999 then-- 재료 다있을때
-     pUser:SelectMsg(4, savenum, 5132, NPC, 41, 930, 27, 193)
+     pUser:SelectMsg(4, savenum, 5132, NPC, 41, 930, 27, CancelButton)
    else
       if ITEM_COUNT1 <= 0 then -- 1재료 없을때
-       pUser:SelectMsg(2, savenum, 5129, NPC, 10, 193)
+       pUser:SelectMsg(2, savenum, 5129, NPC, 10, CancelButton)
       elseif ITEM_COUNT2 <= 0 then -- 2재료 없을때
-        pUser:SelectMsg(2, savenum, 5129, NPC, 10, 193)
+        pUser:SelectMsg(2, savenum, 5129, NPC, 10, CancelButton)
       elseif ITEM_COUNT3 <= 0 then -- 3재료 없을때
-        pUser:SelectMsg(2, savenum, 5129, NPC, 10, 193)
+        pUser:SelectMsg(2, savenum, 5129, NPC, 10, CancelButton)
       else -- 4재료 없을때
-        pUser:SelectMsg(2, savenum, 5129, NPC, 10, 193)
+        pUser:SelectMsg(2, savenum, 5129, NPC, 10, CancelButton)
       end
    end
 end
@@ -893,7 +935,7 @@ if EVENT == 1023 then
     if Class == 6 or Class == 8 or Class == 10 or Class == 12 then -- 2차 전직 자인가 체크 
    pUser:SelectMsg(2, savenum, 5136, NPC, 10, 1024)
     else --2차 전직을안했을때 
-   pUser:SelectMsg(2, savenum, 5135, NPC, 10, 193)
+   pUser:SelectMsg(2, savenum, 5135, NPC, 10, CancelButton)
    end
 end
 
@@ -903,11 +945,11 @@ end
 
 if EVENT == 1025 then
    SaveEvent(5138)
-  pUser:SelectMsg(2, savenum, 5138, NPC, 10, 193)
+  pUser:SelectMsg(2, savenum, 5138, NPC, 10, CancelButton)
 end
 
 if EVENT == 1031 then
-  pUser:SelectMsg(2, savenum, 5139, NPC, 10, 193)
+  pUser:SelectMsg(2, savenum, 5139, NPC, 10, CancelButton)
 end
 
 -- collect all
@@ -917,9 +959,9 @@ if EVENT == 1026 then
    SaveEvent(5140)
    NATION = CheckNation(UID)
    if NATION == 1 then -- 카루스 일때
-     pUser:SelectMsg(1, savenum, 5141, NPC, 32, 193)
+     pUser:SelectMsg(1, savenum, 5141, NPC, 32, CancelButton)
    else -- 엘모일때
-     pUser:SelectMsg(1, savenum, 5142, NPC, 32, 193)
+     pUser:SelectMsg(1, savenum, 5142, NPC, 32, CancelButton)
    end
 end
 
@@ -934,16 +976,16 @@ if EVENT == 1028 then
    ITEM_COUNT2 = HowmuchItem(379236000)
    ITEM_COUNT3 = HowmuchItem(900000000)
    if ITEM_COUNT1  > 0 and ITEM_COUNT2  > 2 and ITEM_COUNT3 > 9999999 then-- 재료 다있을때
-     pUser:SelectMsg(4, savenum, 5143, NPC, 41, 1030, 27, 193)
+     pUser:SelectMsg(4, savenum, 5143, NPC, 41, 1030, 27, CancelButton)
    else
       if ITEM_COUNT1 <= 0 then -- 1재료 없을때
-       pUser:SelectMsg(2, savenum, 5140, NPC, 10, 193)
+       pUser:SelectMsg(2, savenum, 5140, NPC, 10, CancelButton)
       elseif ITEM_COUNT2 <= 0 then -- 2재료 없을때
-        pUser:SelectMsg(2, savenum, 5140, NPC, 10, 193)
+        pUser:SelectMsg(2, savenum, 5140, NPC, 10, CancelButton)
       elseif ITEM_COUNT3 <= 0 then -- 3재료 없을때
-        pUser:SelectMsg(2, savenum, 5140, NPC, 10, 193)
+        pUser:SelectMsg(2, savenum, 5140, NPC, 10, CancelButton)
       else -- 4재료 없을때
-        pUser:SelectMsg(2, savenum, 5140, NPC, 10, 193)
+        pUser:SelectMsg(2, savenum, 5140, NPC, 10, CancelButton)
       end
    end
 end
@@ -998,7 +1040,7 @@ if EVENT == 1123 then
     if Class == 6 or Class == 8 or Class == 10 or Class == 12 then -- 2차 전직 자인가 체크 
    pUser:SelectMsg(2, savenum, 5147, NPC, 10, 1124)
     else --2차 전직을안했을때 
-   pUser:SelectMsg(2, savenum, 5146, NPC, 10, 193)
+   pUser:SelectMsg(2, savenum, 5146, NPC, 10, CancelButton)
    end
 end
 
@@ -1008,11 +1050,11 @@ end
 
 if EVENT == 1125 then
    SaveEvent(5150)
-  pUser:SelectMsg(2, savenum, 5149, NPC, 10, 193)
+  pUser:SelectMsg(2, savenum, 5149, NPC, 10, CancelButton)
 end
 
 if EVENT == 1131 then
-  pUser:SelectMsg(2, savenum, 5150, NPC, 10, 193)
+  pUser:SelectMsg(2, savenum, 5150, NPC, 10, CancelButton)
 end
 
 -- collect all
@@ -1022,9 +1064,9 @@ if EVENT == 1126 then
    SaveEvent(5152)
    NATION = CheckNation(UID)
    if NATION == 1 then -- 카루스 일때
-     pUser:SelectMsg(1, savenum, 5152, NPC, 32, 193)
+     pUser:SelectMsg(1, savenum, 5152, NPC, 32, CancelButton)
    else -- 엘모일때
-     pUser:SelectMsg(1, savenum, 5153, NPC, 32, 193)
+     pUser:SelectMsg(1, savenum, 5153, NPC, 32, CancelButton)
    end
 end
 
@@ -1039,16 +1081,16 @@ if EVENT == 1128 then
    ITEM_COUNT2 = HowmuchItem(379236000)
    ITEM_COUNT3 = HowmuchItem(900000000)
    if ITEM_COUNT1  > 0 and ITEM_COUNT2  > 2 and ITEM_COUNT3 > 9999999 then-- 재료 다있을때
-     pUser:SelectMsg(4, savenum, 5154, NPC, 41, 1130, 27, 193)
+     pUser:SelectMsg(4, savenum, 5154, NPC, 41, 1130, 27, CancelButton)
    else
       if ITEM_COUNT1 <= 0 then -- 1재료 없을때
-       pUser:SelectMsg(2, savenum, 5151, NPC, 10, 193)
+       pUser:SelectMsg(2, savenum, 5151, NPC, 10, CancelButton)
       elseif ITEM_COUNT2 <= 0 then -- 2재료 없을때
-        pUser:SelectMsg(2, savenum, 5151, NPC, 10, 193)
+        pUser:SelectMsg(2, savenum, 5151, NPC, 10, CancelButton)
       elseif ITEM_COUNT3 <= 0 then -- 3재료 없을때
-        pUser:SelectMsg(2, savenum, 5151, NPC, 10, 193)
+        pUser:SelectMsg(2, savenum, 5151, NPC, 10, CancelButton)
       else -- 4재료 없을때
-        pUser:SelectMsg(2, savenum, 5151, NPC, 10, 193)
+        pUser:SelectMsg(2, savenum, 5151, NPC, 10, CancelButton)
       end
    end
 end
