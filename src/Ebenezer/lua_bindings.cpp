@@ -55,6 +55,25 @@ DEFINE_LUA_CLASS
 	MAKE_LUA_METHOD(isRogue)
 	MAKE_LUA_METHOD(isMage)
 	MAKE_LUA_METHOD(isPriest)
+
+	MAKE_LUA_METHOD(isBeginner)
+	MAKE_LUA_METHOD(isBeginnerWarrior)
+	MAKE_LUA_METHOD(isBeginnerRogue)
+	MAKE_LUA_METHOD(isBeginnerMage)
+	MAKE_LUA_METHOD(isBeginnerPriest)
+
+	MAKE_LUA_METHOD(isNovice)
+	MAKE_LUA_METHOD(isNoviceWarrior)
+	MAKE_LUA_METHOD(isNoviceRogue)
+	MAKE_LUA_METHOD(isNoviceMage)
+	MAKE_LUA_METHOD(isNovicePriest)
+
+	MAKE_LUA_METHOD(isMastered)
+	MAKE_LUA_METHOD(isMasteredWarrior)
+	MAKE_LUA_METHOD(isMasteredRogue)
+	MAKE_LUA_METHOD(isMasteredMage)
+	MAKE_LUA_METHOD(isMasteredPriest)
+
 	MAKE_LUA_METHOD(isInClan)
 	MAKE_LUA_METHOD(isClanLeader)
 	MAKE_LUA_METHOD(isInParty)
