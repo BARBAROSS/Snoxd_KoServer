@@ -1,182 +1,226 @@
 -----
--- Script for [Knight Clerk] Delaga in Luferson Castle
+-- Script for [Secret Agent] Clarence in Elmorad (Asga Village)
 -----
 
 pUser = nil
 pNpc = nil
+bSelectedReward = -1
+
+local eventMap = {
+	[190] = BaseMenu,
+	[191] = HandleNPCSelection,
+	[193] = HandleClose,
+	[220] = HandleBorderDefendingBattleInfo,
+	[231] = HandleBorderDefendingBattleInfo1,
+	[221] = HandleBorderDefenceBattleShowMapSaveEvent,
+	[222] = HandleSeedMaxMagicShieldQuestPrompt,
+	[232] = HandleSeedMaxMagicShieldQuestPrompt1,
+	[233] = HandleSeedMaxMagicShieldShowMapSaveEvent,
+	[223] = HandleMagicShield,
+	[224] = HandleMagicShieldInfo,
+	[225] = HandleMagicShieldSaveEvent,
+	[226] = HandleSeedMaxMagicShieldFulfilled,
+	[228] = HandleMagicShieldCheckRequiredItems,
+	[230] = HandleMagicShieldExchange,
+	[603] = HandleAsgaBerries,
+	[604] = HandleAsgaBerriesDecide,
+	[605] = HandleAsgaBerriesAccept,
+	[608] = HandleAsgaBerriesRequiredItems,
+	[610] = HandleAsgaBerriesExchange,
+}
 
 function Main(event)
-	if (event == 190) then
-						BaseMenu()
-	elseif (event == 193) then
-						Close()
-	elseif (event == 603) then
-						Berries()
-	elseif (event == 604) then
-						BerriesDecide()
-	elseif (event == 605) then
-						BerriesSaveEvent()
-	elseif (event == 608) then
-						BerriesRequiredItems()
-	elseif (event == 610) then
-						BerriesExchange()
+						print("Event: " .. event .. ", selected reward: " .. bSelectedReward)
+						local func = eventMap[event]
+	if (func and type(func) == "function") then
+						func()
 	end
 end
 
-local QuestNum
-
 function BaseMenu()
-	QuestNum = pUser:SearchQuest()
-		if (QuestNum == 0) then
-						pUser:SelectMsg(2, -1, 3825, 10, 193)
-		elseif (QuestNum > 1 and  QuestNum < 100) then
-          pUser:NpcMsg(3825)
+						-- pUser:NpcMsg(3825) -- This returns the crazy new NPC menu with buttons, However clicking the buttons does nothing.
+						HandleNPCSelection()  -- This bridges/bypasses BaseMenu() with HandleNPCSelection().
+end						
+
+function HandleNPCSelection()
+	local sQuest = pUser:SearchQuest()
+		if (sQuest == 0) then
+						pUser:SelectMsg(2, -1, 3825, 10, CancleButton)
+		elseif (sQuest > 1 and  sQuest < 100) then
+						pUser:NpcMsg(3825)
 		else
-						event = QuestNum
-						Main(event)
-						print(pUser:SearchQuest()," : Event")
+						Main(sQuest)
 		end
 end
 
-function Close()
+function HandleClose()
+						print("HIT Close!")
 						return
 end
 
---매직쉴드 퀘스트
+function HandleAsgaBerries()
+						print("HIT AsgaBerries!")
+						pUser:SelectMsg(2, 317, 3124, 10, 604)
+end
 
-if EVENT == 220 then -- 엘모
-   SelectMsg(UID, 1, 313, 3114, 14202, 3013, 231, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+function HandleAsgaBerriesDecide()
+						print("HIT AsgaBerriesDecide!")
+						pUser:SelectMsg(4, 317, 3125, 22, 605, 23, CancleButton)
+end
+
+function HandleAsgaBerriesAccept()
+						print("HIT AsgaBerriesAccept!")
+						pUser:SaveEvent(3283)
+end
+
+function HandleAsgaBerriesRequiredItems()
+						print("HIT AsgaBerriesRequiredItems!")
+		if (not pUser:CheckExistItem(910082000)) then
+						pUser:SelectMsg(2, 317, 3128, 10, CancleButton)
+		else
+						pUser:SelectMsg(4, 317, 3130, 10, 610, 27, CancleButton)
+		end
+end
+
+function HandleAsgaBerriesExchange()
+						print("HIT AsgaBerriesExchange!")
+						pUser:RobItem(910082000)
+						pUser:GoldGain(100000)
+						pUser:SaveEvent(3286) 
+end
+
+function HandleBorderDefendingBattleInfo()
+						pUser:SelectMsg(1, 313, 3114, 3013, 231)
 end
 
 
-if EVENT == 231 then
-   SelectMsg(UID, 1, 313, 3115, 14202, 3003, 221, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+function HandleBorderDefendingBattleInfo1()
+						pUser:SelectMsg(1, 313, 3115, 3003, 221)
 end
 
-if EVENT == 221 then
-   ShowMap(UID, 306);
-   SaveEvent(UID, 3202);
+function HandleBorderDefenceBattleShowMapSaveEvent()
+						pUser:ShowMap(306)
+						pUser:SaveEvent(3202)
 end
 
-if EVENT == 222 then -- 카루
-   SelectMsg(UID, 1, 313, 3112, 14202, 3013, 232, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+function HandleSeedMaxMagicShieldQuestPrompt()
+						pUser:SelectMsg(1, 313, 3112, 3013, 232)
 end
 
-if EVENT == 232 then
-   SelectMsg(UID, 1, 313, 3113, 14202, 3003, 233, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+function HandleSeedMaxMagicShieldQuestPrompt1()
+						pUser:SelectMsg(1, 313, 3113, 3003, 233)
 end
 
-if EVENT == 233 then
-   ShowMap(UID, 307);
-   SaveEvent(UID, 3202);
+function HandleSeedMaxMagicShieldShowMapSaveEvent()
+						pUser:ShowMap(307)
+						pUser:SaveEvent(3202)
 end
 
--- 매직쉴드 313번의 속성 0번 4번일 경우
 
-if EVENT == 223 then
-   SelectMsg(UID, 2, 313, 3088, 14202, 3000, 224, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+function HandleMagicShield()
+						pUser:SelectMsg(2, 313, 3088, 3000, 224)
 end
 
-if EVENT == 224 then
-   SelectMsg(UID, 4, 313, 3089, 14202, 22, 225, 23, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+function HandleMagicShieldInfo()
+						pUser:SelectMsg(4, 313, 3089, 22, 225, 23, 193)
 end
 
-if EVENT == 225 then
-   SaveEvent(UID, 3203);
+function HandleMagicShieldSaveEvent()
+						pUser:SaveEvent(3203)
 end
 
--- 재료를 다 모았을 때 
-local NATION = 0;--국가 체크
+local NATION = 0
 
-if EVENT == 226 then
-   SaveEvent(UID, 3205);
-   NATION = CheckNation(UID);
-   if NATION == 1 then -- 카루스 일때
-      SelectMsg(UID, 1, 313, 3093, 14202, 32, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
-   else -- 엘모일때
-      SelectMsg(UID, 1, 313, 3094, 14202, 32, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
-   end
+function HandleSeedMaxMagicShieldFulfilled()
+						pUser:SaveEvent(3205)
+	NATION = pUser:CheckNation(UID)
+	if NATION == 1 then
+						pUser:SelectMsg(1, 313, 3093, 32, 193)
+	else
+						pUser:SelectMsg(1, 313, 3094, 32, 193)
+	end
 end
 
-local ITEM_COUNTA=0;
-local ITEM_COUNTB=0;
-local ITEM_COUNTC=0;
-local RUN_EXCHANGE ;--재료 교체 함수 만들어 주세요 
 
-if EVENT == 228 then
-   ITEM_COUNTA = HowmuchItem(UID, 330310014);
-   ITEM_COUNTB = HowmuchItem(UID, 389075000);
-   ITEM_COUNTC = HowmuchItem(UID, 900000000);
-   if ITEM_COUNTA  > 0 and ITEM_COUNTB  > 29 and ITEM_COUNTC  > 4999999 then-- 재료 다있을때
-      SelectMsg(UID, 4, 313, 3095, 14202, 10, 230, 27, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
-   else -- 재료가 없을때
-      if  ITEM_COUNTA <= 0 then -- A재료 없을때
-        SelectMsg(UID, 2, 313, 3092, 14202, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
-      elseif  ITEM_COUNTB <= 29 then -- B재료 없을때
-        SelectMsg(UID, 2, 313, 3092, 14202, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
-      else -- C재료 없을때
-     SelectMsg(UID, 2, 313, 3092, 14202, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+local ITEM_COUNTA = 0
+local ITEM_COUNTB = 0
+local ITEM_COUNTC = 0
+
+function HandleMagicShieldCheckRequiredItems()
+	ITEM_COUNTA = HowmuchItem(330310014)
+	ITEM_COUNTB = HowmuchItem(389075000)
+	ITEM_COUNTC = HowmuchItem(900000000)
+	if (ITEM_COUNTA  > 0 and ITEM_COUNTB  > 29 and ITEM_COUNTC  > 4999999) then
+						pUser:SelectMsg(4, 313, 3095, 14202, 10, 230, 27, 193)
+	else
+		if  ITEM_COUNTA <= 0 then
+						pUser:SelectMsg(2, 313, 3092, 14202, 10, 193)
+		elseif  ITEM_COUNTB <= 29 then
+						pUser:SelectMsg(2, 313, 3092, 14202, 10, 193)
+		else
+						pUser:SelectMsg(2, 313, 3092, 14202, 10, 193)
       end   
-   end
+	end
 end
+
 
 if EVENT == 229 then
-   ShowMap(UID, 7);
+   pUser:ShowMap(7)
 end
 
-local Check;
+local Check
 
-if EVENT == 230 then
-   Check = CheckExchange(UID, 313)
+function HandleMagicShieldExchange()
+   Check = pUser:CheckExchange(313)
    if  Check ==1 then
-   RunExchange(UID, 313);
-   SaveEvent(UID, 3206);
+   pUser:RunExchange(313)
+   pUser:SaveEvent(3206)
    else
-  Ret = 1;	
+  return
   end	 
 end
 
-
+--[[
 --속도의비약 퀘스트
 --local SHOW_MAP; -- 지도 보여주눈 함수 만들어 주세요
 
 if EVENT == 300 then
-   SelectMsg(UID, 1, 314, 3001, 14202, 28, 301, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(1, 314, 3001, 28, 301)
 end
 
 if EVENT == 301 then
-   ShowMap(UID, 5);
-   SaveEvent(UID, 3222);
+   pUser:ShowMap(5)
+   SaveEvent(3222)
 end
 
 if EVENT == 302 then
-   SelectMsg(UID, 1, 314, 3002, 14202, 28, 301, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(1, 314, 3002, 28, 301)
 end
 
 --속도의비약 311번의 속성 0번 4번일 경우
 
 if EVENT == 303 then
-   SelectMsg(UID, 2, 314, 3096, 14202, 3011, 304, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(2, 314, 3096, 3011, 304)
 end
 
 if EVENT == 304 then
-   SelectMsg(UID, 4, 314, 3097, 14202, 22, 305, 23, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(4, 314, 3097, 22, 305, 23, 193)
 end
 
 if EVENT == 305 then
-   SaveEvent(UID, 3223);
+   SaveEvent(3223)
 end
 
 -- 재료를 다 모았을 때 
 local NATION = 0;--국가 체크
 
 if EVENT == 306 then
-   SaveEvent(UID, 3225);
-   NATION = CheckNation(UID);
+   SaveEvent(3225)
+   NATION = CheckNation(UID)
    if NATION == 1 then -- 카루스 일때
-      SelectMsg(UID, 1, 314, 3101, 14202, 32, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(1, 314, 3101, 32, 193)
    else -- 엘모일때
-      SelectMsg(UID, 1, 314, 3102, 14202, 21, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(1, 314, 3102, 21, 193)
    end
 end
 
@@ -186,33 +230,33 @@ local ITEM_COUNTC=0;
 local RUN_EXCHANGE ;--재료 교체 함수 만들어 주세요 
 
 if EVENT == 308 then
-   ITEM_COUNTA = HowmuchItem(UID, 379113000);
-   ITEM_COUNTB = HowmuchItem(UID, 379201000);
-   ITEM_COUNTC = HowmuchItem(UID, 379014000);
+   ITEM_COUNTA = HowmuchItem(379113000)
+   ITEM_COUNTB = HowmuchItem(379201000)
+   ITEM_COUNTC = HowmuchItem(379014000)
    if  ITEM_COUNTA  > 4 and  ITEM_COUNTB  > 49 and  ITEM_COUNTC  > 29 then --재료가 다있을때 
-      SelectMsg(UID, 4, 314, 3103, 14202, 10, 310, 27, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(4, 314, 3103, 10, 310, 27, 193)
    else -- 재료가 없을때
       if ITEM_COUNTA <= 4 then -- A 재료 없을때
-        SelectMsg(UID, 2, 314, 3100, 14202, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+       pUser:SelectMsg(2, 314, 3100, 10, 193)
       elseif  ITEM_COUNTB <= 49 then -- B 재료 없을때 
-        SelectMsg(UID, 2, 314, 3100, 14202, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+       pUser:SelectMsg(2, 314, 3100, 10, 193)
       else -- C 재료 없을때
-      SelectMsg(UID, 2, 314, 3100, 14202, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(2, 314, 3100, 10, 193)
       end
     end
 end
 
 if EVENT == 309 then
-   ShowMap(UID, 7);
+   pUser:ShowMap(7)
 end
 
 local Check;
 
 if EVENT == 310 then
-   Check = CheckExchange(UID, 400)
+   Check = CheckExchange(400)
    if  Check ==1 then
-   RunExchange(UID, 314);
-   SaveEvent(UID, 3226);
+   RunExchange(314)
+   SaveEvent(3226)
    else
   Ret = 1;	
   end	 
@@ -222,42 +266,42 @@ end
 --local SHOW_MAP; -- 지도 보여주눈 함수 만들어 주세요
 
 if EVENT == 400 then
-   SelectMsg(UID, 1, 315, 3001, 14202, 28, 401, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(1, 315, 3001, 28, 401)
 end
 
 if EVENT == 401 then
-   ShowMap(UID, 5);
-   SaveEvent(UID, 3242);
+   pUser:ShowMap(5)
+   SaveEvent(3242)
 end
 
 if EVENT == 402 then
-   SelectMsg(UID, 1, 315, 3002, 14202, 28, 401, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(1, 315, 3002, 28, 401)
 end
 
 --민첩의인장 315번의 속성 0번 4번일 경우
 
 if EVENT == 403 then
-   SelectMsg(UID, 2, 315, 3104, 14202, 10, 404, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(2, 315, 3104, 10, 404)
 end
 
 if EVENT == 404 then
-   SelectMsg(UID, 4, 315, 3105, 14202, 22, 405, 23, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(4, 315, 3105, 22, 405, 23, 193)
 end
 
 if EVENT == 405 then
-   SaveEvent(UID, 3243);
+   SaveEvent(3243)
 end
 
 -- 재료를 다 모았을 때 
 local NATION = 0;--국가 체크
 
 if EVENT == 406 then
-   SaveEvent(UID, 3245);
-   NATION = CheckNation(UID);
+   SaveEvent(3245)
+   NATION = CheckNation(UID)
    if NATION == 1 then -- 카루스 일때
-      SelectMsg(UID, 1, 315, 3109, 14202, 32, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(1, 315, 3109, 32, 193)
    else -- 엘모일때
-      SelectMsg(UID, 1, 315, 3110, 14202, 21, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(1, 315, 3110, 21, 193)
    end
 end
 
@@ -267,33 +311,33 @@ local ITEM_COUNTC=0;
 local RUN_EXCHANGE ;--재료 교체 함수 만들어 주세요 
 
 if EVENT == 408 then
-   ITEM_COUNTA = HowmuchItem(UID, 379045000);
-   ITEM_COUNTB = HowmuchItem(UID, 379042000);
-   ITEM_COUNTC = HowmuchItem(UID, 379067000);
+   ITEM_COUNTA = HowmuchItem(379045000)
+   ITEM_COUNTB = HowmuchItem(379042000)
+   ITEM_COUNTC = HowmuchItem(379067000)
    if  ITEM_COUNTA  > 19 and  ITEM_COUNTB  > 0 and  ITEM_COUNTC  > 0 then --재료가 다있을때 
-      SelectMsg(UID, 4, 315, 3111, 14202, 10, 410, 27, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(4, 315, 3111, 10, 410, 27, 193)
    else -- 재료가 없을때
       if ITEM_COUNTA <= 19 then -- A 재료 없을때
-        SelectMsg(UID, 2, 315, 3108, 14202, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+       pUser:SelectMsg(2, 315, 3108, 10, 193)
       elseif  ITEM_COUNTB <= 0 then -- B 재료 없을때 
-        SelectMsg(UID, 2, 315, 3108, 14202, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+       pUser:SelectMsg(2, 315, 3108, 10, 193)
       else -- C 재료 없을때
-        SelectMsg(UID, 2, 315, 3108, 14202, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+       pUser:SelectMsg(2, 315, 3108, 10, 193)
       end
     end
 end
 
 if EVENT == 409 then
-   ShowMap(UID, 7);
+   pUser:ShowMap(7)
 end
 
 local Check;
 
 if EVENT == 410 then
-   Check = CheckExchange(UID, 315)
+   Check = CheckExchange(315)
    if  Check ==1 then
-   RunExchange(UID, 315);
-   SaveEvent(UID, 3246);
+   RunExchange(315)
+   SaveEvent(3246)
    else
   Ret = 1;	
   end	 
@@ -303,50 +347,50 @@ end
 --local SHOW_MAP; -- 지도 보여주눈 함수 만들어 주세요
 
 if EVENT == 500 then
-   SelectMsg(UID, 1, 316, 3112, 14202, 28, 1000, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(1, 316, 3112, 28, 1000)
 end
 
 if EVENT == 1000 then
-   SelectMsg(UID, 1, 316, 3113, 14202, 28, 501, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(1, 316, 3113, 28, 501)
 end
 
 if EVENT == 501 then
-   ShowMap(UID, 306);
-   SaveEvent(UID, 3262);
+   pUser:ShowMap(306)
+   SaveEvent(3262)
 end
 
 if EVENT == 502 then
-   SelectMsg(UID, 1, 316, 3114, 14202, 28, 1001, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(1, 316, 3114, 28, 1001)
 end
 
 if EVENT == 1001 then
-   SelectMsg(UID, 1, 316, 3115, 14202, 28, 501, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(1, 316, 3115, 28, 501)
 end
 
 --독의성수 316번의 속성 0번 4번일 경우
 
 if EVENT == 503 then
-   SelectMsg(UID, 2, 316, 3116, 14202, 10, 504, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(2, 316, 3116, 10, 504)
 end
 
 if EVENT == 504 then
-   SelectMsg(UID, 4, 316, 3117, 14202, 22, 505, 23, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(4, 316, 3117, 22, 505, 23, 193)
 end
 
 if EVENT == 505 then
-   SaveEvent(UID, 3263);
+   SaveEvent(3263)
 end
 
 -- 재료를 다 모았을 때 
 local NATION = 0;--국가 체크
 
 if EVENT == 506 then
-   SaveEvent(UID, 3265);
-   NATION = CheckNation(UID);
+   SaveEvent(3265)
+   NATION = CheckNation(UID)
    if NATION == 1 then -- 카루스 일때
-      SelectMsg(UID, 1, 316, 3121, 14202, 32, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(1, 316, 3121, 32, 193)
    else -- 엘모일때
-      SelectMsg(UID, 1, 316, 3122, 14202, 21, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(1, 316, 3122, 21, 193)
    end
 end
 
@@ -357,36 +401,36 @@ local ITEM_COUNTD=0;
 local RUN_EXCHANGE ;--재료 교체 함수 만들어 주세요 
 
 if EVENT == 508 then
-   ITEM_COUNTA = HowmuchItem(UID, 379040000);
-   ITEM_COUNTB = HowmuchItem(UID, 379041000);
-   ITEM_COUNTC = HowmuchItem(UID, 379042000);
-   ITEM_COUNTD = HowmuchItem(UID, 379014000);
+   ITEM_COUNTA = HowmuchItem(379040000)
+   ITEM_COUNTB = HowmuchItem(379041000)
+   ITEM_COUNTC = HowmuchItem(379042000)
+   ITEM_COUNTD = HowmuchItem(379014000)
    if  ITEM_COUNTA  > 0 and  ITEM_COUNTB  > 0 and  ITEM_COUNTC  > 0 and  ITEM_COUNTD  > 9 then --재료가 다있을때 
-      SelectMsg(UID, 4, 316, 3123, 14202, 10, 510, 27, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(4, 316, 3123, 10, 510, 27, 193)
    else -- 재료가 없을때
       if ITEM_COUNTA <= 0 then -- A 재료 없을때
-        SelectMsg(UID, 2, 316, 3120, 14202, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+       pUser:SelectMsg(2, 316, 3120, 10, 193)
       elseif  ITEM_COUNTB <= 0 then -- B 재료 없을때 
-        SelectMsg(UID, 2, 316, 3120, 14202, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+       pUser:SelectMsg(2, 316, 3120, 10, 193)
       elseif  ITEM_COUNTB <= 0 then -- C 재료 없을때 
-        SelectMsg(UID, 2, 316, 3120, 14202, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+       pUser:SelectMsg(2, 316, 3120, 10, 193)
       else -- D 재료 없을때
-        SelectMsg(UID, 2, 316, 3120, 14202, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+       pUser:SelectMsg(2, 316, 3120, 10, 193)
       end
     end
 end
 
 if EVENT == 509 then
-   ShowMap(UID, 7);
+   pUser:ShowMap(7)
 end
 
 local Check;
 
 if EVENT == 510 then
-   Check = CheckExchange(UID, 316)
+   Check = CheckExchange(316)
    if  Check ==1 then
-   RunExchange(UID, 316);
-   SaveEvent(UID, 3266);
+   RunExchange(316)
+   SaveEvent(3266)
    else
   Ret = 1;	
   end	 
@@ -396,42 +440,31 @@ end
 --local SHOW_MAP; -- 지도 보여주눈 함수 만들어 주세요
 
 if EVENT == 600 then
-   SelectMsg(UID, 1, 317, 3001, 14202, 28, 601, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(1, 317, 3001, 28, 601)
 end
 
 if EVENT == 601 then
-   ShowMap(UID, 5);
-   SaveEvent(UID, 3282);
+   pUser:ShowMap(5)
+   SaveEvent(3282)
 end
 
 if EVENT == 602 then
-   SelectMsg(UID, 1, 317, 3002, 14202, 28, 601, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(1, 317, 3002, 28, 601)
 end
 
 --아스가열매 317번의 속성 0번 4번일 경우
 
-function Berries()
-						pUser:SelectMsg(2, 317, 3124, 10, 604)
-end
-
-function BerriesDecide()
-						pUser:SelectMsg(4, 317, 3125, 22, 605, 23, 193)
-end
-
-function BerriesSaveEvent()
-						pUser:SaveEvent(3283)
-end
 
 -- 재료를 다 모았을 때 
 local NATION = 0;--국가 체크
 
 if EVENT == 606 then
-   SaveEvent(UID, 3285);
-   NATION = CheckNation(UID);
+   SaveEvent(3285)
+   NATION = CheckNation(UID)
    if NATION == 1 then -- 카루스 일때
-      SelectMsg(UID, 1, 317, 3005, 14202, 32, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(1, 317, 3005, 32, 193)
    else -- 엘모일때
-      SelectMsg(UID, 1, 317, 3129, 14202, 32, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(1, 317, 3129, 32, 193)
    end
 end
 
@@ -446,12 +479,12 @@ function BerriesRequiredItems()
 end
 
 if EVENT == 609 then
-   ShowMap(UID, 314);
+   pUser:ShowMap(314)
 end
 
 local Check;
 
-function BerriesExchange()
+function BerriesExchange() -- 610
 						pUser:RobItem(910082000)
 						pUser:GoldGain(100000)
 						pUser:SaveEvent(3286) 
@@ -461,42 +494,42 @@ end
 --local SHOW_MAP; -- 지도 보여주눈 함수 만들어 주세요
 
 if EVENT == 700 then
-   SelectMsg(UID, 1, 318, 3001, 14202, 28, 701, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(1, 318, 3001, 28, 701)
 end
 
 if EVENT == 701 then
-   ShowMap(UID, 5);
-   SaveEvent(UID, 3292);
+   pUser:ShowMap(5)
+   SaveEvent(3292)
 end
 
 if EVENT == 702 then
-   SelectMsg(UID, 1, 318, 3002, 14202, 28, 701, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(1, 318, 3002, 28, 701)
 end
 
 --카디널보석 318번의 속성 0번 4번일 경우
 
 if EVENT == 703 then
-   SelectMsg(UID, 2, 318, 3131, 14202, 10, 704, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(2, 318, 3131, 10, 704)
 end
 
 if EVENT == 704 then
-   SelectMsg(UID, 4, 318, 3132, 14202, 22, 705, 23, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(4, 318, 3132, 22, 705, 23, 193)
 end
 
 if EVENT == 705 then
-   SaveEvent(UID, 3293);
+   SaveEvent(3293)
 end
 
 -- 재료를 다 모았을 때 
 local NATION = 0;--국가 체크
 
 if EVENT == 706 then
-   SaveEvent(UID, 3295);
-   NATION = CheckNation(UID);
+   SaveEvent(3295)
+   NATION = CheckNation(UID)
    if NATION == 1 then -- 카루스 일때
-      SelectMsg(UID, 1, 318, 3136, 14202, 3015, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(1, 318, 3136, 3015, 193)
    else -- 엘모일때
-      SelectMsg(UID, 1, 318, 3006, 14202, 3015, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(1, 318, 3006, 3015, 193)
    end
 end
 
@@ -504,26 +537,26 @@ local ITEM_COUNT=0;
 local RUN_EXCHANGE ;--재료 교체 함수 만들어 주세요 
 
 if EVENT == 708 then
-	ITEM_COUNT = GetMaxExchange(UID, 318); --exchange 테이블 인덱스값 
+	ITEM_COUNT = GetMaxExchange(318) --exchange 테이블 인덱스값 
       if  ITEM_COUNT == 0 then -- 재료 없을때
-       SelectMsg(UID, 2, 318, 3135, 14202, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+      pUser:SelectMsg(2, 318, 3135, 10, 193)
        else-- 재료 있을때
-       SelectMsg(UID, 4, 318, 3137, 14202, 10, 710, 27, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+      pUser:SelectMsg(4, 318, 3137, 10, 710, 27, 193)
       end
 end
 
 if EVENT == 709 then
-   ShowMap(UID, 314);
+   pUser:ShowMap(314)
 end
 
 local Check;
 
 if EVENT == 710 then
-   Check = CheckExchange(UID, 400)
+   Check = CheckExchange(400)
    if  Check ==1 then
-   min_count = GetMaxExchange(UID, 318);
- 	RunCountExchange(UID, 318, min_count);	
-   SaveEvent(UID, 3296);
+   min_count = GetMaxExchange(318)
+ 	RunCountExchange(318, min_count)	
+   SaveEvent(3296)
    else
   Ret = 1;	
   end	 
@@ -539,14 +572,14 @@ local savenum = 408;
 -- 시드미셀 등장
 
 if EVENT == 530 then
-   Class = CheckClass (UID);
+   Class = CheckClass (UID)
    if Class == 7 then -- 2차전직 가능한 경우
-   SaveEvent(UID, 4099); --helper 번호 수정 
-   NATION = CheckNation(UID);
+   SaveEvent(4099) --helper 번호 수정 
+   NATION = CheckNation(UID)
       if NATION == 1 then --카루스 일때 
-      SelectMsg(UID, 1, savenum, 4094, NPC, 4080, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(1, savenum, 4094, NPC, 4080, 193)
       else -- 엘모일때
-      SelectMsg(UID, 1, savenum, 4095, NPC, 4080, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(1, savenum, 4095, NPC, 4080, 193)
       end
    else -- 2차 전직이 되거나, 1차 전직도 안한 경우
     Ret = 1;
@@ -558,65 +591,65 @@ end
 if EVENT == 532 then   
 Level = CheckLevel(UID)
    if Level > 59 then -- 레벨이 60이상인가?   
-   Class = CheckClass (UID);
+   Class = CheckClass (UID)
       if Class == 5 or Class == 7 or Class == 9 or Class == 11 then -- 1차 전직 전인가 체크
-       SelectMsg(UID, 4, savenum, 4098, NPC, 22, 533, 23, 534, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+      pUser:SelectMsg(4, savenum, 4098, NPC, 22, 533, 23, 534)
       else --1차 전직을 이미 했을때
-      SaveEvent(UID, 4101);
-      SelectMsg(UID, 2, savenum, 4097, NPC, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+      SaveEvent(4101)
+     pUser:SelectMsg(2, savenum, 4097, NPC, 10, 193)
       end
    else --레벨이 60이하일때 
-   SelectMsg(UID, 2, savenum, 4096, NPC, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(2, savenum, 4096, NPC, 10, 193)
    end
 end
 
 if EVENT == 533 then
-   SaveEvent(UID, 4100); --수락시
+   SaveEvent(4100) --수락시
 end
 
 if EVENT == 534 then
-   SaveEvent(UID, 4103); -- 거절시 
+   SaveEvent(4103) -- 거절시 
 end
 
 -- 재료를 다 모았을 때 
 local NATION = 0;--국가 체크
 
 if EVENT == 535 then
-   SaveEvent(UID, 4102);
-   NATION = CheckNation(UID);
+   SaveEvent(4102)
+   NATION = CheckNation(UID)
    if NATION == 1 then -- 카루스 일때
-      SelectMsg(UID, 1, savenum, 4101, NPC, 4080, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(1, savenum, 4101, NPC, 4080, 193)
    else -- 엘모일때
-      SelectMsg(UID, 1, savenum, 4102, NPC, 4080, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(1, savenum, 4102, NPC, 4080, 193)
    end
 end
 
 -- 클라렌스 408번의 속성 1번 3번일 경우
 
 if EVENT == 536 then
-   ITEM_COUNTA = HowmuchItem(UID, 379241000); --독의 성수
-   ITEM_COUNTB = HowmuchItem(UID, 379236000); -- 마법의 보석가루
+   ITEM_COUNTA = HowmuchItem(379241000) --독의 성수
+   ITEM_COUNTB = HowmuchItem(379236000) -- 마법의 보석가루
     if  ITEM_COUNTA  > 0 and  ITEM_COUNTB  > 0  then --재료가 다있을때 
-      SelectMsg(UID, 2, savenum, 4103, NPC, 4062, 537, 4063, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(2, savenum, 4103, NPC, 4062, 537, 4063, 193)
     else -- 재료가 없을때
        if ITEM_COUNTA <= 0 then -- A 재료 없을때
-       SelectMsg(UID, 2, savenum, 4099, NPC, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+      pUser:SelectMsg(2, savenum, 4099, NPC, 10, 193)
        else -- B 재료 없을때 
-       SelectMsg(UID, 2, savenum, 4100, NPC, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+      pUser:SelectMsg(2, savenum, 4100, NPC, 10, 193)
        end
    end
 end
 
 if EVENT == 537 then
-   SaveEvent(UID, 4101);
-   RobItem(UID, 379241000, 1);
-   RobItem(UID, 379236000, 1);
+   SaveEvent(4101)
+   RobItem(379241000, 1)
+   RobItem(379236000, 1)
    PromoteUser(UID)
-   NATION = CheckNation(UID);
+   NATION = CheckNation(UID)
    if NATION == 1 then --카루스 일때 
-   SelectMsg(UID, 1, savenum, 4092, NPC, 4064, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(1, savenum, 4092, NPC, 4064, 193)
    else -- 엘모일때
-   SelectMsg(UID, 1, savenum, 4093, NPC, 4064, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(1, savenum, 4093, NPC, 4064, 193)
    end
 end
 
@@ -630,56 +663,56 @@ end
 --seed or misel call
 
 if EVENT == 820 then
-   SelectMsg(UID, 1, 52, 3225, 14202, 3006, 821, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(1, 52, 3225, 3006, 821)
 end
 
 if EVENT == 821 then
-   ShowMap(UID, 306);
-   SaveEvent(UID, 3422);
+   pUser:ShowMap(306)
+   SaveEvent(3422)
 end
 
 if EVENT == 822 then
-   SelectMsg(UID, 1, 52, 3224, 14202, 3006, 821, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(1, 52, 3224, 3006, 821)
 end
 
 -- 70Lv skill no.52 type 0 or 4
 
 if EVENT == 823 then
-   Class = CheckClass (UID);
+   Class = CheckClass (UID)
     if Class == 6 or Class == 8 or Class == 10 or Class == 12 then -- 2차 전직 자인가 체크 
-   SelectMsg(UID, 2, 52, 3226, 14202, 10, 824, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(2, 52, 3226, 10, 824)
     else --2차 전직을 안했을때 
-   SelectMsg(UID, 2, 52, 4711, 14202, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(2, 52, 4711, 10, 193)
     end
 end
 
 if EVENT == 823 then
-   SelectMsg(UID, 2, 52, 3226, 14202, 10, 824, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(2, 52, 3226, 10, 824)
 end
 
 if EVENT == 824 then
-   SelectMsg(UID, 4, 52, 3227, 14202, 22, 825, 23, 831, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(4, 52, 3227, 22, 825, 23, 831)
 end
 
 if EVENT == 825 then
-   SaveEvent(UID, 3423);
-   SelectMsg(UID, 2, 52, 3228, 14202, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+   SaveEvent(3423)
+  pUser:SelectMsg(2, 52, 3228, 10, 193)
 end
 
 if EVENT == 831 then
-   SelectMsg(UID, 2, 52, 3229, 14202, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(2, 52, 3229, 10, 193)
 end
 
 -- collect all
 local NATION = 0;--nation check
 
 if EVENT == 826 then
-   SaveEvent(UID, 3425);
-   NATION = CheckNation(UID);
+   SaveEvent(3425)
+   NATION = CheckNation(UID)
    if NATION == 1 then -- 카루스 일때
-      SelectMsg(UID, 1, 52, 3231, 14202, 32, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(1, 52, 3231, 32, 193)
    else -- 엘모일때
-      SelectMsg(UID, 1, 52, 3232, 14202, 32, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(1, 52, 3232, 32, 193)
    end
 end
 
@@ -689,18 +722,18 @@ local ITEM_COUNT3=0;
 local RUN_EXCHANGE ;
 
 if EVENT == 828 then
-   ITEM_COUNT1 = HowmuchItem(UID, 379245000);
-   ITEM_COUNT2 = HowmuchItem(UID, 379246000);
-   ITEM_COUNT3 = HowmuchItem(UID, 379064000);
+   ITEM_COUNT1 = HowmuchItem(379245000)
+   ITEM_COUNT2 = HowmuchItem(379246000)
+   ITEM_COUNT3 = HowmuchItem(379064000)
    if ITEM_COUNT1  > 0 and ITEM_COUNT2  > 0 and ITEM_COUNT3  > 0 then-- 재료 다있을때
-      SelectMsg(UID, 4, 52, 3233, 14202, 41, 830, 27, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(4, 52, 3233, 41, 830, 27, 193)
    else
       if ITEM_COUNT1 <= 0 then -- 1재료 없을때
-        SelectMsg(UID, 2, 52, 3230, 14202, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+       pUser:SelectMsg(2, 52, 3230, 10, 193)
       elseif ITEM_COUNT2 <= 0 then -- 2재료 없을때
-         SelectMsg(UID, 2, 52, 3230, 14202, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+        pUser:SelectMsg(2, 52, 3230, 10, 193)
       else -- 3재료 없을때
-         SelectMsg(UID, 2, 52, 3230, 14202, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+        pUser:SelectMsg(2, 52, 3230, 10, 193)
       end
    end
 end
@@ -709,11 +742,11 @@ end
 local Check;
 
 if EVENT == 830 then
-        Check = CheckExchange(UID, 330)
+        Check = CheckExchange(330)
         if  Check == 1 then
-            Exchange =RunExchange(UID, 330);
+            Exchange =RunExchange(330)
             if  Exchange ==0 then
-            SaveEvent(UID, 3424);
+            SaveEvent(3424)
             else
             Ret = 1;	
             end	 
@@ -734,54 +767,54 @@ local NPC = 14202;
 --seed or misel call
 
 if EVENT == 920 then
-   SelectMsg(UID, 1, savenum, 5122, NPC, 3006, 921, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(1, savenum, 5122, NPC, 3006, 921)
 end
 --시드
 
 if EVENT == 921 then
-   ShowMap(UID, 306);
-   SaveEvent(UID, 5125);
+   pUser:ShowMap(306)
+   SaveEvent(5125)
 end
 
 if EVENT == 922 then
-   SelectMsg(UID, 1, savenum, 5123, NPC, 3006, 921, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(1, savenum, 5123, NPC, 3006, 921)
 end
 --미셀
 
 --  type 0 or 4
 
 if EVENT == 923 then
-   Class = CheckClass (UID);
+   Class = CheckClass (UID)
     if Class == 6 or Class == 8 or Class == 10 or Class == 12 then -- 2차 전직 자인가 체크 
-    SelectMsg(UID, 2, savenum, 5125, NPC, 10, 924, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+   pUser:SelectMsg(2, savenum, 5125, NPC, 10, 924)
     else --2차 전직을안했을때 
-    SelectMsg(UID, 2, savenum, 5124, NPC, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+   pUser:SelectMsg(2, savenum, 5124, NPC, 10, 193)
    end
 end
 
 if EVENT == 924 then
-   SelectMsg(UID, 4, savenum, 5126, NPC, 22, 925, 23, 931, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(4, savenum, 5126, NPC, 22, 925, 23, 931)
 end
 
 if EVENT == 925 then
-   SaveEvent(UID, 5126);
-   SelectMsg(UID, 2, savenum, 5127, NPC, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+   SaveEvent(5126)
+  pUser:SelectMsg(2, savenum, 5127, NPC, 10, 193)
 end
 
 if EVENT == 931 then
-   SelectMsg(UID, 2, savenum, 5128, NPC, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(2, savenum, 5128, NPC, 10, 193)
 end
 
 -- collect all
 local NATION = 0;--nation check
 
 if EVENT == 926 then
-   SaveEvent(UID, 5128);
-   NATION = CheckNation(UID);
+   SaveEvent(5128)
+   NATION = CheckNation(UID)
    if NATION == 1 then -- 카루스 일때
-      SelectMsg(UID, 1, savenum, 5130, NPC, 32, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(1, savenum, 5130, NPC, 32, 193)
    else -- 엘모일때
-      SelectMsg(UID, 1, savenum, 5131, NPC, 32, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(1, savenum, 5131, NPC, 32, 193)
    end
 end
 
@@ -792,20 +825,20 @@ local ITEM_COUNT4=0;
 local RUN_EXCHANGE ;
 
 if EVENT == 928 then
-   ITEM_COUNT1 = HowmuchItem(UID, 379241000);
-   ITEM_COUNT2 = HowmuchItem(UID, 379236000);
-   ITEM_COUNT3 = HowmuchItem(UID, 900000000);
+   ITEM_COUNT1 = HowmuchItem(379241000)
+   ITEM_COUNT2 = HowmuchItem(379236000)
+   ITEM_COUNT3 = HowmuchItem(900000000)
    if ITEM_COUNT1  > 0 and ITEM_COUNT2  > 2 and ITEM_COUNT3 > 9999999 then-- 재료 다있을때
-      SelectMsg(UID, 4, savenum, 5132, NPC, 41, 930, 27, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(4, savenum, 5132, NPC, 41, 930, 27, 193)
    else
       if ITEM_COUNT1 <= 0 then -- 1재료 없을때
-        SelectMsg(UID, 2, savenum, 5129, NPC, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+       pUser:SelectMsg(2, savenum, 5129, NPC, 10, 193)
       elseif ITEM_COUNT2 <= 0 then -- 2재료 없을때
-         SelectMsg(UID, 2, savenum, 5129, NPC, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+        pUser:SelectMsg(2, savenum, 5129, NPC, 10, 193)
       elseif ITEM_COUNT3 <= 0 then -- 3재료 없을때
-         SelectMsg(UID, 2, savenum, 5129, NPC, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+        pUser:SelectMsg(2, savenum, 5129, NPC, 10, 193)
       else -- 4재료 없을때
-         SelectMsg(UID, 2, savenum, 5129, NPC, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+        pUser:SelectMsg(2, savenum, 5129, NPC, 10, 193)
       end
    end
 end
@@ -814,11 +847,11 @@ end
 local Check;
 
 if EVENT == 930 then
-   Check = CheckExchange(UID, 522)
+   Check = CheckExchange(522)
    if  Check == 1 then
-   Exchange =RunExchange(UID, 522);
+   Exchange =RunExchange(522)
         if  Exchange ==0 then
-        SaveEvent(UID, 5127);
+        SaveEvent(5127)
         else
         Ret = 1;	
         end	 
@@ -839,54 +872,54 @@ local savenum = 513;
 --seed or misel call
 
 if EVENT == 1020 then
-   SelectMsg(UID, 1, savenum, 5133, NPC, 3006, 1021, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(1, savenum, 5133, NPC, 3006, 1021)
 end
 --시드
 
 if EVENT == 1021 then
-   ShowMap(UID, 306);
-   SaveEvent(UID, 5137);
+   pUser:ShowMap(306)
+   SaveEvent(5137)
 end
 
 if EVENT == 1022 then
-   SelectMsg(UID, 1, savenum, 5134, NPC, 3006, 1021, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(1, savenum, 5134, NPC, 3006, 1021)
 end
 --미셀
 
 --  type 0 or 4
 
 if EVENT == 1023 then
-   Class = CheckClass (UID);
+   Class = CheckClass (UID)
     if Class == 6 or Class == 8 or Class == 10 or Class == 12 then -- 2차 전직 자인가 체크 
-    SelectMsg(UID, 2, savenum, 5136, NPC, 10, 1024, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+   pUser:SelectMsg(2, savenum, 5136, NPC, 10, 1024)
     else --2차 전직을안했을때 
-    SelectMsg(UID, 2, savenum, 5135, NPC, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+   pUser:SelectMsg(2, savenum, 5135, NPC, 10, 193)
    end
 end
 
 if EVENT == 1024 then
-   SelectMsg(UID, 4, savenum, 5137, NPC, 22, 1025, 23, 1031, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(4, savenum, 5137, NPC, 22, 1025, 23, 1031)
 end
 
 if EVENT == 1025 then
-   SaveEvent(UID, 5138);
-   SelectMsg(UID, 2, savenum, 5138, NPC, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+   SaveEvent(5138)
+  pUser:SelectMsg(2, savenum, 5138, NPC, 10, 193)
 end
 
 if EVENT == 1031 then
-   SelectMsg(UID, 2, savenum, 5139, NPC, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(2, savenum, 5139, NPC, 10, 193)
 end
 
 -- collect all
 local NATION = 0;--nation check
 
 if EVENT == 1026 then
-   SaveEvent(UID, 5140);
-   NATION = CheckNation(UID);
+   SaveEvent(5140)
+   NATION = CheckNation(UID)
    if NATION == 1 then -- 카루스 일때
-      SelectMsg(UID, 1, savenum, 5141, NPC, 32, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(1, savenum, 5141, NPC, 32, 193)
    else -- 엘모일때
-      SelectMsg(UID, 1, savenum, 5142, NPC, 32, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(1, savenum, 5142, NPC, 32, 193)
    end
 end
 
@@ -897,20 +930,20 @@ local ITEM_COUNT4=0;
 local RUN_EXCHANGE ;
 
 if EVENT == 1028 then
-   ITEM_COUNT1 = HowmuchItem(UID, 379246000);
-   ITEM_COUNT2 = HowmuchItem(UID, 379236000);
-   ITEM_COUNT3 = HowmuchItem(UID, 900000000);
+   ITEM_COUNT1 = HowmuchItem(379246000)
+   ITEM_COUNT2 = HowmuchItem(379236000)
+   ITEM_COUNT3 = HowmuchItem(900000000)
    if ITEM_COUNT1  > 0 and ITEM_COUNT2  > 2 and ITEM_COUNT3 > 9999999 then-- 재료 다있을때
-      SelectMsg(UID, 4, savenum, 5143, NPC, 41, 1030, 27, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(4, savenum, 5143, NPC, 41, 1030, 27, 193)
    else
       if ITEM_COUNT1 <= 0 then -- 1재료 없을때
-        SelectMsg(UID, 2, savenum, 5140, NPC, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+       pUser:SelectMsg(2, savenum, 5140, NPC, 10, 193)
       elseif ITEM_COUNT2 <= 0 then -- 2재료 없을때
-         SelectMsg(UID, 2, savenum, 5140, NPC, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+        pUser:SelectMsg(2, savenum, 5140, NPC, 10, 193)
       elseif ITEM_COUNT3 <= 0 then -- 3재료 없을때
-         SelectMsg(UID, 2, savenum, 5140, NPC, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+        pUser:SelectMsg(2, savenum, 5140, NPC, 10, 193)
       else -- 4재료 없을때
-         SelectMsg(UID, 2, savenum, 5140, NPC, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+        pUser:SelectMsg(2, savenum, 5140, NPC, 10, 193)
       end
    end
 end
@@ -919,11 +952,11 @@ end
 local Check;
 
 if EVENT == 1030 then
-   Check = CheckExchange(UID, 523)
+   Check = CheckExchange(523)
    if  Check == 1 then
-   Exchange =RunExchange(UID, 523);
+   Exchange =RunExchange(523)
         if  Exchange ==0 then
-        SaveEvent(UID, 5139);
+        SaveEvent(5139)
         else
         Ret = 1;	
         end	 
@@ -944,54 +977,54 @@ local savenum = 514;
 --seed or misel call
 
 if EVENT == 1120 then
-   SelectMsg(UID, 1, savenum, 5144, NPC, 3006, 1121, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(1, savenum, 5144, NPC, 3006, 1121)
 end
 --시드
 
 if EVENT == 1121 then
-   ShowMap(UID, 306);
-   SaveEvent(UID, 5149);
+   pUser:ShowMap(306)
+   SaveEvent(5149)
 end
 
 if EVENT == 1122 then
-   SelectMsg(UID, 1, savenum, 5145, NPC, 3006, 1121, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(1, savenum, 5145, NPC, 3006, 1121)
 end
 --미셀
 
 --  type 0 or 4
 
 if EVENT == 1123 then
-   Class = CheckClass (UID);
+   Class = CheckClass (UID)
     if Class == 6 or Class == 8 or Class == 10 or Class == 12 then -- 2차 전직 자인가 체크 
-    SelectMsg(UID, 2, savenum, 5147, NPC, 10, 1124, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+   pUser:SelectMsg(2, savenum, 5147, NPC, 10, 1124)
     else --2차 전직을안했을때 
-    SelectMsg(UID, 2, savenum, 5146, NPC, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+   pUser:SelectMsg(2, savenum, 5146, NPC, 10, 193)
    end
 end
 
 if EVENT == 1124 then
-   SelectMsg(UID, 4, savenum, 5148, NPC, 22, 1125, 23, 1131, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(4, savenum, 5148, NPC, 22, 1125, 23, 1131)
 end
 
 if EVENT == 1125 then
-   SaveEvent(UID, 5150);
-   SelectMsg(UID, 2, savenum, 5149, NPC, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+   SaveEvent(5150)
+  pUser:SelectMsg(2, savenum, 5149, NPC, 10, 193)
 end
 
 if EVENT == 1131 then
-   SelectMsg(UID, 2, savenum, 5150, NPC, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+  pUser:SelectMsg(2, savenum, 5150, NPC, 10, 193)
 end
 
 -- collect all
 local NATION = 0;--nation check
 
 if EVENT == 1126 then
-   SaveEvent(UID, 5152);
-   NATION = CheckNation(UID);
+   SaveEvent(5152)
+   NATION = CheckNation(UID)
    if NATION == 1 then -- 카루스 일때
-      SelectMsg(UID, 1, savenum, 5152, NPC, 32, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(1, savenum, 5152, NPC, 32, 193)
    else -- 엘모일때
-      SelectMsg(UID, 1, savenum, 5153, NPC, 32, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(1, savenum, 5153, NPC, 32, 193)
    end
 end
 
@@ -1002,20 +1035,20 @@ local ITEM_COUNT4=0;
 local RUN_EXCHANGE ;
 
 if EVENT == 1128 then
-   ITEM_COUNT1 = HowmuchItem(UID, 379245000);
-   ITEM_COUNT2 = HowmuchItem(UID, 379236000);
-   ITEM_COUNT3 = HowmuchItem(UID, 900000000);
+   ITEM_COUNT1 = HowmuchItem(379245000)
+   ITEM_COUNT2 = HowmuchItem(379236000)
+   ITEM_COUNT3 = HowmuchItem(900000000)
    if ITEM_COUNT1  > 0 and ITEM_COUNT2  > 2 and ITEM_COUNT3 > 9999999 then-- 재료 다있을때
-      SelectMsg(UID, 4, savenum, 5154, NPC, 41, 1130, 27, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+     pUser:SelectMsg(4, savenum, 5154, NPC, 41, 1130, 27, 193)
    else
       if ITEM_COUNT1 <= 0 then -- 1재료 없을때
-        SelectMsg(UID, 2, savenum, 5151, NPC, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+       pUser:SelectMsg(2, savenum, 5151, NPC, 10, 193)
       elseif ITEM_COUNT2 <= 0 then -- 2재료 없을때
-         SelectMsg(UID, 2, savenum, 5151, NPC, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+        pUser:SelectMsg(2, savenum, 5151, NPC, 10, 193)
       elseif ITEM_COUNT3 <= 0 then -- 3재료 없을때
-         SelectMsg(UID, 2, savenum, 5151, NPC, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+        pUser:SelectMsg(2, savenum, 5151, NPC, 10, 193)
       else -- 4재료 없을때
-         SelectMsg(UID, 2, savenum, 5151, NPC, 10, 193, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+        pUser:SelectMsg(2, savenum, 5151, NPC, 10, 193)
       end
    end
 end
@@ -1024,11 +1057,11 @@ end
 local Check;
 
 if EVENT == 1130 then
-   Check = CheckExchange(UID, 524)
+   Check = CheckExchange(524)
    if  Check == 1 then
-   Exchange =RunExchange(UID, 524);
+   Exchange =RunExchange(524)
         if  Exchange ==0 then
-        SaveEvent(UID, 5151);
+        SaveEvent(5151)
         else
         Ret = 1;	
         end	 
@@ -1044,3 +1077,4 @@ end
 
 
 return Ret;
+]]
