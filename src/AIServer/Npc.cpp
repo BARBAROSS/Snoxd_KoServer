@@ -3138,7 +3138,7 @@ bool CNpc::GetUserInViewRange(int x, int z)
 	}
 
 	FastGuard lock(pMap->m_lock);
-	CRegion * pRegion = &pMap->m_ppRegion[x][z];
+	CRegion * pRegion = pMap->GetRegion(x, z);
 	float fDis = 0.0f; 
 
 	foreach_stlmap (itr, pRegion->m_RegionUserArray)
@@ -3147,7 +3147,7 @@ bool CNpc::GetUserInViewRange(int x, int z)
 		if (pUser == nullptr)
 			continue;
 
-		if (isInRange(pUser, NPC_VIEW_RANGE))
+		if (isInRangeSlow(pUser, NPC_VIEW_RANGE))
 			return true;
 	}
 	
@@ -3404,21 +3404,10 @@ bool CNpc::CheckFindEnemy()
 	if (isGuard())
 		return true;
 
-	MAP* pMap = GetMap();
-
-	if (pMap == nullptr
-		|| GetRegionX() > pMap->GetXRegionMax() 
-		|| GetRegionZ() > pMap->GetZRegionMax())
-	{
-		TRACE("#### CheckFindEnemy Fail : [nid=%d, sid=%d], nRX=%d, nRZ=%d #####\n", GetID(), GetProtoID(), GetRegionX(), GetRegionZ());
+	if (GetRegion() == nullptr)
 		return false;
-	}
 
-	FastGuard lock(pMap->m_lock);
-	if (pMap->m_ppRegion[GetRegionX()][GetRegionZ()].m_byMoving == 1)
-		return true;
-
-	return false;
+	return (GetRegion()->m_byMoving == 1);
 }
 
 int	CNpc::ItemProdution(int item_number)							// 아이템 제작

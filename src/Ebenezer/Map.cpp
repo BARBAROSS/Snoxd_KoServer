@@ -48,7 +48,6 @@ CRegion * C3DMap::GetRegion(uint16 regionX, uint16 regionZ)
 	return &m_ppRegion[regionX][regionZ];
 }
 
-
 bool C3DMap::RegionItemAdd(uint16 rx, uint16 rz, _LOOT_BUNDLE * pBundle)
 {
 	if (pBundle == nullptr)
